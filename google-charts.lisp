@@ -1,6 +1,6 @@
 (defpackage google-charts
   (:use #:cl)
-  (:export #:chart #:bar-chart #:line-chart
+  (:export #:chart #:bar-chart #:line-chart #:pie-chart #:qr-code #:venn-diagram
            #:uri #:image-data))
 
 (in-package #:google-charts)
@@ -78,6 +78,14 @@
   (3dp
    concentricp))
 
+(defclass qr-code ()
+  ((size :initarg :size :accessor size)
+   (data :initarg :data :accessor data)
+   (encoding :initform nil :initarg :encoding :accessor encoding)
+   (error-correction-level :initform nil :initarg :error-correction-level
+                           :accessor error-correction-level)
+   (margin :initform nil :initarg :margin :accessor margin)))
+
 (defclass venn-diagram (chd-chart)
   ())
 
@@ -111,6 +119,18 @@
     `(("cht" . "p")))
   (:method nconc ((chart venn-diagram))
     `(("cht" . "v"))))
+
+(defmethod get-parameters nconc ((chart qr-code))
+  (let ((params `(("cht" . "qr")
+                  ("chs" . ,(format nil "~{~a~^x~}" (size chart))))))
+    (when (data chart) (push `("chl" . ,(data chart)) params))
+    (when (encoding chart) (push `("choe" . ,(encoding chart)) params))
+    (when (or (error-correction-level chart) (margin chart))
+      (push `("chld" . ,(format nil "~@[~a~]~@[|~d~]"
+                                (error-correction-level chart)
+                                (margin chart)))
+            params))
+    params))
 
 (defun uri (chart)
   "Returns a GET-style URI that can be used in an IMG tag. If you want to get
