@@ -45,7 +45,7 @@
 
 (defclass axis ()
   ((range :initform nil :initarg :range :accessor range)
-   (labels :initform nil :initarg :labels :accessor labels)
+   (labels :initform nil :initarg :labels :accessor axis-labels)
    (tick-mark-lengths :initform nil :initarg :tick-mark-lengths
                       :accessor tick-mark-lengths)))
 
