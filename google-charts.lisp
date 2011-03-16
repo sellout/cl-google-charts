@@ -34,7 +34,7 @@
    background-fills))
 
 (defclass line-bar-gom-radar-scatter-mixin ()
-  (visible-axes
+  ((visible-axes :initarg :visible-axes :accessor visible-axes)
    axis-range
    (custom-axis-labels :initform nil :initarg :custom-axis-labels
                        :accessor custom-axis-labels)
@@ -97,9 +97,18 @@
   (:method nconc ((chart chd-chart))
     `(("chd" . ,(format nil "t:~{~a~^,~}" (data chart)))))
   (:method nconc ((chart line-bar-gom-radar-scatter-mixin))
-    `(("chxl" . ,(if (custom-axis-labels chart)
-                     (format nil "~{0:~{|~a~}~^|~}" (custom-axis-labels chart))
-                     ""))))
+    (let ((params ()))
+      (when (custom-axis-labels chart)
+        (push `("chxl" . ,(format nil "~{0:~{|~a~}~^|~}"
+                                  (custom-axis-labels chart)))
+              params))
+      (when (visible-axes chart)
+        (push `("chxt" . ,(format nil "~{~a~^,~}"
+                                  (mapcar (lambda (axis)
+                                            (string-downcase (subseq (symbol-name axis) 0 1)))
+                                          (visible-axes chart))))
+              params))
+      params))
   (:method nconc ((chart bar-chart))
     (assert (not (and (eq (arrangement chart) :overlapped)
                       (eq (direction chart) :horizontal)))
