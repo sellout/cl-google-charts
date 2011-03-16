@@ -33,6 +33,22 @@
    (legend-margins :documentation "chma")
    background-fills))
 
+(defclass axis-range ()
+  (start
+   end
+   step))
+
+(defclass axis-label ()
+  (value
+   position
+   style))
+
+(defclass axis ()
+  ((range :initform nil :initarg :range :accessor range)
+   (labels :initform nil :initarg :labels :accessor labels)
+   (tick-mark-lengths :initform nil :initarg :tick-mark-lengths
+                      :accessor tick-mark-lengths)))
+
 (defclass line-bar-gom-radar-scatter-mixin ()
   ((visible-axes :initarg :visible-axes :accessor visible-axes)
    axis-range
