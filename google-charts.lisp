@@ -81,7 +81,8 @@
 (defclass qr-code ()
   ((size :initarg :size :accessor size)
    (data :initarg :data :accessor data)
-   (encoding :initform nil :initarg :encoding :accessor encoding)
+   (encoding :initform nil :initarg :encoding :accessor encoding
+             :type (member :utf-8 :shift-jis :iso-8859-1))
    (error-correction-level :initform nil :initarg :error-correction-level
                            :accessor error-correction-level)
    (margin :initform nil :initarg :margin :accessor margin)))
