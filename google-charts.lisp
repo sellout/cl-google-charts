@@ -79,7 +79,8 @@
    data))
 
 (defclass line-chart (candlestick-chart)
-  ((default-axes-p :initarg :default-axes-p :accessor default-axes-p)))
+  ((default-axes-p :initform t :initarg :default-axes-p
+                   :accessor default-axes-p)))
 
 (defclass pie-chart (chart)
   (3dp
