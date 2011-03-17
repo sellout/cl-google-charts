@@ -56,6 +56,9 @@
 (defclass axis-chart (chart)
   ((axes :initform nil :initarg :axes :accessor axes :type list)))
 
+(defclass meter (axis-chart)
+  ((label :initform nil :initarg :label :accessor label)))
+
 (defclass compound-chart (axis-chart)
   (icon-markers
    (grid-lines)
@@ -135,6 +138,8 @@
                    (push `("chxs" . ,(format nil "~:{~d~a~:^|~}" real-styles))
                          params))
                  (return params))))
+  (:method nconc ((chart meter))
+    `(("cht" . "gom")))
   (:method nconc ((chart compound-chart))
     (let ((params ()))
       params))
