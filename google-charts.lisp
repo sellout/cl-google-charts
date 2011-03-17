@@ -1,7 +1,12 @@
 (defpackage google-charts
   (:use #:cl)
-  (:export #:chart #:bar-chart #:line-chart #:pie-chart #:qr-code #:venn-diagram
-           #:uri #:image-data #:image-map #:validate))
+  (:export #:uri #:image-data #:image-map #:validate
+           ;; chart types
+           #:bar-chart #:line-chart #:pie-chart #:qr-code #:venn-diagram
+           ;; elements
+           #:axis #:legend #:series
+           ;; abstract charts
+           #:chart))
 
 (in-package #:google-charts)
 
@@ -12,121 +17,135 @@
 ;; NOTE: it seems like color and font-size are used always the same, and used
 ;; with the parameter name + "s"
 
-(defclass chart ()
-  ((size :initarg :size :accessor size :documentation "chs")
+(defclass sizing-mixin ()
+  ((size :initarg :size :accessor size :documentation "chs")))
+
+(defclass series ()
+  ((data :initarg :data :accessor data)
+   (scaling :initform nil :initarg :scaling :accessor scaling)))
+
+(defclass legend ()
+  ((labels)
+   (position :documentation "chdlp"
+             :type (member :bottom-horizontal
+                           :bottom-vertical
+                           :top-horizontal
+                           :top-vertical
+                           :right-vertical
+                           :left-vertical))
+   label-order
+   style))
+
+(defclass chart (sizing-mixin)
+  ((data :initarg :data :accessor data)
+   data-functions
    (title :documentation "chtt")
    (title-color :documentation "chts")
    (title-font-size :documentation "chts")
-   
-   (legend :documentation "chdl")
-   (legend-position :documentation "chdlp"
-                    :type (member :bottom-horizontal
-                                  :bottam-vertical
-                                  :top-horizontal
-                                  :top-vertical
-                                  :right-vertical
-                                  :left-vertical))
-   (legend-label-ordering :documentation "chdlp"
-                          :type (or (member :same :reverse :automatic) list))
-   (legend-color :documentation "chdls")
-   (legend-font-size :documentation "chdls")
-
+   (legend :initarg :legend :accessor legend)
    (margins :documentation "chma")
    (legend-margins :documentation "chma")
    background-fills))
 
-(defclass axis-range ()
-  (start
-   end
-   step))
-
 (defclass axis-label ()
   (value
-   position
-   style))
+   position))
 
 (defclass axis ()
-  ((range :initform nil :initarg :range :accessor range)
+  ((location :initarg :location :accessor location
+             :type (member :x :y :top :right))
+   (range :initform nil :initarg :range :accessor range)
    (labels :initform nil :initarg :labels :accessor axis-labels)
+   (label-style :initform nil :initarg :label-style :accessor label-style)
    (tick-mark-lengths :initform nil :initarg :tick-mark-lengths
                       :accessor tick-mark-lengths)))
 
-(defclass line-bar-gom-radar-scatter-mixin ()
-  ((visible-axes :initarg :visible-axes :accessor visible-axes)
-   axis-range
-   (custom-axis-labels :initform nil :initarg :custom-axis-labels
-                       :accessor custom-axis-labels)
-   axis-label-positions
-   axis-label-styles
-   axis-tick-marks))
+(defun print-range (range)
+  (format nil ",~d,~d~@[,~d~]" (start range) (end range) (axis-step range)))
 
-(defclass bar-candlestick-line-radar-scatter-mixin ()
-  (range-markers
-   line-markers))
+(defclass axis-chart (chart)
+  ((axes :initform nil :initarg :axes :accessor axes :type list)))
 
-(defclass bar-line-radar-scatter-mixin
-    (line-bar-gom-radar-scatter-mixin bar-candlestick-line-radar-scatter-mixin)
-  (grid-lines
-   dynamic-icon-markers
+(defclass compound-chart (axis-chart)
+  (icon-markers
+   (grid-lines)
+   line-markers
+   range-markers
    shape-markers
-   text-and-data-value-markers))
+   value-markers))
 
-(defclass bar-line-mixin (bar-line-radar-scatter-mixin)
+(defclass candlestick-chart (compound-chart)
   (candlestick-markers))
 
-(defclass chd-chart (chart)
-  ((data :initarg :data :accessor data)
-   data-functions))
-
-(defclass bar-chart (bar-line-mixin chd-chart)
+(defclass bar-chart (candlestick-chart)
   ((arrangement :initarg :arrangement :accessor arrangement
                 :documentation "cht"
                 :type (member :stacked :overlapped :grouped))
    (direction :initarg :direction :accessor direction
               :documentation "cht" :type (member :horizontal :vertical))))
 
-(defclass dynamic-icon ()
+(defclass icon ()
   (icon-type
    data))
 
-(defclass line-chart (bar-line-mixin chd-chart)
+(defclass line-chart (candlestick-chart)
   ((default-axes-p :initarg :default-axes-p :accessor default-axes-p)))
 
-(defclass pie-chart (chd-chart)
+(defclass pie-chart (chart)
   (3dp
    concentricp))
 
-(defclass qr-code ()
-  ((size :initarg :size :accessor size)
-   (data :initarg :data :accessor data)
+(defclass qr-code (sizing-mixin)
+  ((data :initarg :data :accessor data)
    (encoding :initform nil :initarg :encoding :accessor encoding
              :type (member nil :utf-8 :shift-jis :iso-8859-1))
    (error-correction-level :initform nil :initarg :error-correction-level
                            :accessor error-correction-level)
    (margin :initform nil :initarg :margin :accessor margin)))
 
-(defclass venn-diagram (chd-chart)
+(defclass venn-diagram (chart)
   ())
 
 (defgeneric get-parameters (chart)
   (:method-combination nconc)
+  (:method nconc ((chart sizing-mixin))
+    `(("chs" . ,(format nil "~{~a~^x~}" (size chart)))))
   (:method nconc ((chart chart))
-    (let ((parameters `(("chs" . ,(format nil "~{~a~^x~}" (size chart))))))
-      parameters))
-  (:method nconc ((chart chd-chart))
-    `(("chd" . ,(format nil "t:~{~a~^,~}" (data chart)))))
-  (:method nconc ((chart line-bar-gom-radar-scatter-mixin))
+    (let* ((series (mapcar #'data (data chart)))
+           (scaling (remove nil (mapcar #'scaling (data chart))))
+           (params `(("chd" . ,(format nil "t:~{~{~a~^,~}~^|~}" series)))))
+      (when scaling
+        (push `("chds" . ,(format nil "~{~{~a~^,~}~}" scaling)) params))
+      params))
+  (:method nconc ((chart axis-chart))
+    (loop for axis in (axes chart)
+       for index from 0
+       collecting (string-downcase (subseq (symbol-name (location axis)) 0 1))
+                  into names
+       collecting (when (range axis) (cons index (range axis)))
+                  into ranges
+       collecting (when (axis-labels axis) (list index (axis-labels axis)))
+                  into labels
+       collecting (when (label-style axis) (list index (label-style axis)))
+                  into styles
+       finally (let ((real-ranges (remove nil ranges))
+                     (real-labels (remove nil labels))
+                     (real-styles (remove nil styles))
+                     (params ()))
+                 (when names
+                   (push `("chxt" . ,(format nil "~{~a~^,~}" names)) params))
+                 (when real-ranges
+                   (push `("chxr" . ,(format nil "~{~{~d~^,~}~^|~}" real-ranges))
+                         params))
+                 (when real-labels
+                   (push `("chxl" . ,(format nil "~:{~d:~{|~a~}~}" real-labels))
+                         params))
+                 (when real-styles
+                   (push `("chxs" . ,(format nil "~:{~d~a~:^|~}" real-styles))
+                         params))
+                 (return params))))
+  (:method nconc ((chart compound-chart))
     (let ((params ()))
-      (when (custom-axis-labels chart)
-        (push `("chxl" . ,(format nil "~{0:~{|~a~}~^|~}"
-                                  (custom-axis-labels chart)))
-              params))
-      (when (visible-axes chart)
-        (push `("chxt" . ,(format nil "~{~a~^,~}"
-                                  (mapcar (lambda (axis)
-                                            (string-downcase (subseq (symbol-name axis) 0 1)))
-                                          (visible-axes chart))))
-              params))
       params))
   (:method nconc ((chart bar-chart))
     (assert (not (and (eq (arrangement chart) :overlapped)
@@ -149,8 +168,7 @@
     `(("cht" . "v"))))
 
 (defmethod get-parameters nconc ((chart qr-code))
-  (let ((params `(("cht" . "qr")
-                  ("chs" . ,(format nil "~{~a~^x~}" (size chart))))))
+  (let ((params `(("cht" . "qr"))))
     (when (data chart) (push `("chl" . ,(data chart)) params))
     (when (encoding chart) (push `("choe" . ,(encoding chart)) params))
     (when (or (error-correction-level chart) (margin chart))
