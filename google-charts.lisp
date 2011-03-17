@@ -26,15 +26,17 @@
    label-order
    style))
 
-(defclass chart (sizing-mixin)
+(defclass title/legend-mixin (sizing-mixin)
+  ((legend :initform nil :initarg :legend :accessor legend)
+   (margins :initform nil :initarg :margins :accessor margins)
+   (legend-margins :documentation "chma")
+   (title :initform nil :initarg :title :accessor title)
+   (title-color :documentation "chts")
+   (title-font-size :documentation "chts")))
+
+(defclass chart (title/legend-mixin)
   ((data :initarg :data :accessor data)
    data-functions
-   (title :documentation "chtt")
-   (title-color :documentation "chts")
-   (title-font-size :documentation "chts")
-   (legend :initarg :legend :accessor legend)
-   (margins :documentation "chma")
-   (legend-margins :documentation "chma")
    background-fills))
 
 (defclass axis-label ()
@@ -110,6 +112,12 @@
   (:method-combination append)
   (:method append ((chart sizing-mixin))
     `(("chs" . ,(format nil "~{~a~^x~}" (size chart)))))
+  (:method append ((chart title/legend-mixin))
+    (let ((params ()))
+      (when (title chart) (push `("chtt" . ,(title chart)) params))
+      (when (margins chart)
+        (push `("chma" . ,(format nil "~{~d~^,~}" (margins chart))) params))
+      params))
   (:method append ((chart chart))
     (let* ((series (mapcar #'data (data chart)))
            (scaling (remove nil (mapcar #'scaling (data chart))))
