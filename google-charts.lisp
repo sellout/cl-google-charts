@@ -100,8 +100,6 @@
 (defclass radar-chart (compound-chart)
   ((curvedp :initform nil :initarg :curvedp :accessor curvedp)))
 
-;; FIXME: seems like we can't use the data scaling parameter here, even though
-;;        the documentation says otherwise
 (defclass scatter-plot (chart)
   ())
 
@@ -117,7 +115,7 @@
            (scaling (remove nil (mapcar #'scaling (data chart))))
            (params `(("chd" . ,(format nil "t:~{~{~a~^,~}~^|~}" series)))))
       (when scaling
-        (push `("chds" . ,(format nil "~{~{~a~^,~}~}" scaling)) params))
+        (push `("chds" . ,(format nil "~{~{~a~^,~}~^,~}" scaling)) params))
       params))
   (:method append ((chart axis-chart))
     (loop for axis in (axes chart)
