@@ -97,6 +97,9 @@
                            :accessor error-correction-level)
    (margin :initform nil :initarg :margin :accessor margin)))
 
+(defclass radar-chart (compound-chart)
+  ((curvedp :initform nil :initarg :curvedp :accessor curvedp)))
+
 (defclass venn-diagram (chart)
   ())
 
@@ -160,6 +163,8 @@
     `(("cht" . ,(if (default-axes-p chart) "lc" "lc:nda"))))
   (:method nconc ((chart pie-chart))
     `(("cht" . "p")))
+  (:method nconc ((chart radar-chart))
+    `(("cht" . ,(if (curvedp chart) "rs" "r"))))
   (:method nconc ((chart venn-diagram))
     `(("cht" . "v"))))
 
