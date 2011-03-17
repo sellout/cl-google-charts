@@ -87,6 +87,10 @@
   ((default-axes-p :initform t :initarg :default-axes-p
                    :accessor default-axes-p)))
 
+(defclass map (title/legend-mixin)
+  ((colors :initform nil :initarg :colors :accessor colors)
+   (regions :initarg :regions :accessor regions)))
+
 (defclass pie-chart (chart)
   (3dp
    concentricp))
@@ -172,6 +176,12 @@
                           (:grouped "g"))))))
   (:method append ((chart line-chart))
     `(("cht" . ,(if (default-axes-p chart) "lc" "lc:nda"))))
+  (:method append ((chart map))
+    (let ((params `(("cht" . "map")
+                    ("chld" . ,(format nil "~{~a~^|~}" (regions chart))))))
+      (when (colors chart)
+        (push `("chco" . ,(format nil "~{~a~^|~}" (colors chart))) params))
+      params))
   (:method append ((chart pie-chart))
     `(("cht" . "p")))
   (:method append ((chart radar-chart))
