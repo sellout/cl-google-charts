@@ -1,5 +1,16 @@
 (in-package #:google-charts)
 
+(defclass formula (sizing-mixin)
+  ((color :initform nil :initarg :color :accessor color)
+   (tex-input :initarg :tex-input :accessor tex-input)))
+
+(defmethod get-parameters append ((chart formula))
+  (let ((params `(("cht" . "tx")
+                  ("chl" . ,(tex-input chart)))))
+    (when (color chart)
+      (push `("chco" . ,(symbol-name (color chart))) params))
+    params))
+
 (defclass map (title/legend-mixin)
   ((colors :initform nil :initarg :colors :accessor colors)
    (regions :initarg :regions :accessor regions)))
