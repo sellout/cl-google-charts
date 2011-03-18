@@ -8,7 +8,7 @@
 ;; with the parameter name + "s"
 
 (defclass sizing-mixin ()
-  ((size :initarg :size :accessor size :documentation "chs")))
+  ((size :initform nil :initarg :size :accessor size)))
 
 (defclass series ()
   ((data :initarg :data :accessor data)
@@ -99,7 +99,8 @@
 (defgeneric get-parameters (chart)
   (:method-combination append)
   (:method append ((chart sizing-mixin))
-    `(("chs" . ,(format nil "~{~a~^x~}" (size chart)))))
+    (when (size chart)
+      `(("chs" . ,(format nil "~{~a~^x~}" (size chart))))))
   (:method append ((chart title/legend-mixin))
     (let ((params ()))
       (when (title chart) (push `("chtt" . ,(title chart)) params))
