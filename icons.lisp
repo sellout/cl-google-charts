@@ -7,11 +7,13 @@
     (string value)))
 
 (defclass icon ()
-  ((shadowp :initform nil :initarg :shadowp :accessor shadowp)
-   (fill-color :initarg :fill-color :accessor fill-color)
-   (text-color :initarg :text-color :accessor text-color)))
+  ((text-color :initarg :text-color :accessor text-color)))
 
-(defclass bubble (icon)
+(defclass bubble/pin-mixin (icon)
+  ((shadowp :initform nil :initarg :shadowp :accessor shadowp)
+   (fill-color :initarg :fill-color :accessor fill-color)))
+
+(defclass bubble (bubble/pin-mixin)
   ((icon :initform nil :initarg :icon :accessor icon)
    (text :initarg :text :accessor text) ; string for text, list for texts
    (bigp :initform nil :initarg :bigp :accessor bigp)
@@ -33,7 +35,25 @@
                        (text-color chart)
                        (when (listp (text chart)) (text chart))))))
 
-(defclass pin (icon)
+(defclass fun-note (icon)
+  ((title :initform nil :initarg :title :accessor title)
+   (text :initform nil :initarg :text :accessor text)
+   (shape :initarg :shape :accessor shape)
+   (largep :initform nil :initarg :largep :accessor largep)
+   (text-color :initarg :text-color :accessor text-color)
+   (text-alignment :initarg :text-alignment :accessor text-alignment)))
+
+(defmethod get-parameters append ((chart fun-note))
+  `(("chst" . ,(format nil "d_fnote~:[~;_title~]" (title chart)))
+    ("chld" . ,(format nil "~a|~d|~a|~a~@[|~a~]~{|~a~}"
+                       (symbol->string (shape chart))
+                       (if (largep chart) 1 2)
+                       (text-color chart)
+                       (text-alignment chart)
+                       (title chart)
+                       (text chart)))))
+
+(defclass pin (bubble/pin-mixin)
   ;; character for text, symbol for icon
   ((content :initarg :content :accessor content)
    (style :initform nil :initarg :style :accessor style)
