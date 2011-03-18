@@ -5,7 +5,7 @@
            #:bar-chart #:line-chart #:meter #:pie-chart #:radar-chart
            #:scatter-plot #:venn-diagram
            ;; icons
-           #:bubble
+           #:bubble #:pin
            ;; other image types
            #:formula #:graph #:map #:qr-code
            ;; elements
