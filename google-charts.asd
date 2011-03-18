@@ -7,5 +7,6 @@
   :depends-on (drakma puri)
   :serial t
   :components ((:file "package")
+               (:file "icons")
                (:file "google-charts")
                (:file "api")))

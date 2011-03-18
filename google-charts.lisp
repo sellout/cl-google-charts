@@ -79,10 +79,6 @@
    (direction :initarg :direction :accessor direction
               :documentation "cht" :type (member :horizontal :vertical))))
 
-(defclass icon ()
-  (icon-type
-   data))
-
 (defclass line-chart (candlestick-chart)
   ((default-axes-p :initform t :initarg :default-axes-p
                    :accessor default-axes-p)))
