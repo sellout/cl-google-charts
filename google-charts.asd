@@ -9,4 +9,5 @@
   :components ((:file "package")
                (:file "icons")
                (:file "google-charts")
+               (:file "miscellany")
                (:file "api")))

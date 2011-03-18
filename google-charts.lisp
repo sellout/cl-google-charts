@@ -83,21 +83,9 @@
   ((default-axes-p :initform t :initarg :default-axes-p
                    :accessor default-axes-p)))
 
-(defclass map (title/legend-mixin)
-  ((colors :initform nil :initarg :colors :accessor colors)
-   (regions :initarg :regions :accessor regions)))
-
 (defclass pie-chart (chart)
   (3dp
    concentricp))
-
-(defclass qr-code (sizing-mixin)
-  ((data :initarg :data :accessor data)
-   (encoding :initform nil :initarg :encoding :accessor encoding
-             :type (member nil :utf-8 :shift-jis :iso-8859-1))
-   (error-correction-level :initform nil :initarg :error-correction-level
-                           :accessor error-correction-level)
-   (margin :initform nil :initarg :margin :accessor margin)))
 
 (defclass radar-chart (compound-chart)
   ((curvedp :initform nil :initarg :curvedp :accessor curvedp)))
@@ -172,12 +160,6 @@
                           (:grouped "g"))))))
   (:method append ((chart line-chart))
     `(("cht" . ,(if (default-axes-p chart) "lc" "lc:nda"))))
-  (:method append ((chart map))
-    (let ((params `(("cht" . "map")
-                    ("chld" . ,(format nil "~{~a~^|~}" (regions chart))))))
-      (when (colors chart)
-        (push `("chco" . ,(format nil "~{~a~^|~}" (colors chart))) params))
-      params))
   (:method append ((chart pie-chart))
     `(("cht" . "p")))
   (:method append ((chart radar-chart))
@@ -186,14 +168,3 @@
     `(("cht" . "s")))
   (:method append ((chart venn-diagram))
     `(("cht" . "v"))))
-
-(defmethod get-parameters append ((chart qr-code))
-  (let ((params `(("cht" . "qr"))))
-    (when (data chart) (push `("chl" . ,(data chart)) params))
-    (when (encoding chart) (push `("choe" . ,(encoding chart)) params))
-    (when (or (error-correction-level chart) (margin chart))
-      (push `("chld" . ,(format nil "~@[~a~]~@[|~d~]"
-                                (error-correction-level chart)
-                                (margin chart)))
-            params))
-    params))
