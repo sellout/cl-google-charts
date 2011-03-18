@@ -5,7 +5,7 @@
            #:bar-chart #:line-chart  #:meter #:pie-chart #:radar-chart
            #:scatter-plot #:venn-diagram
            ;; other image types
-           #:formula #:map #:qr-code
+           #:formula #:graph #:map #:qr-code
            ;; elements
            #:axis #:legend #:series
            ;; abstract charts

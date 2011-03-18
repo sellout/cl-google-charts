@@ -11,6 +11,16 @@
       (push `("chco" . ,(symbol-name (color chart))) params))
     params))
 
+(defclass graph (sizing-mixin)
+  ((engine :initform nil :initarg :engine :accessor engine)
+   (dot-input :initarg :dot-input :accessor dot-input)))
+
+(defmethod get-parameters append ((chart graph))
+  `(("cht" . ,(format nil "gv~:[~;:~a~]"
+                      (engine chart)
+                      (string-downcase (symbol-name (engine chart)))))
+    ("chl" . ,(dot-input chart))))
+
 (defclass map (title/legend-mixin)
   ((colors :initform nil :initarg :colors :accessor colors)
    (regions :initarg :regions :accessor regions)))
