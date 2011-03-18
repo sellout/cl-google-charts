@@ -8,6 +8,6 @@
   :serial t
   :components ((:file "package")
                (:file "icons")
-               (:file "google-charts")
+               (:file "charts")
                (:file "miscellany")
                (:file "api")))
