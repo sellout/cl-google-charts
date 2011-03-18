@@ -17,8 +17,7 @@
 
 (defmethod get-parameters append ((chart graph))
   `(("cht" . ,(format nil "gv~:[~;:~a~]"
-                      (engine chart)
-                      (string-downcase (symbol-name (engine chart)))))
+                      (engine chart) (string-downcase (engine chart))))
     ("chl" . ,(dot-input chart))))
 
 (defclass map (title/legend-mixin)

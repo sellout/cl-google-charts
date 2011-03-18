@@ -2,9 +2,7 @@
 
 (defun parameters-with-output-format (chart output-format)
   (if output-format
-      (cons `("chof" . ,(if (typep output-format 'symbol)
-                            (string-downcase (symbol-name output-format))
-                            output-format))
+      (cons `("chof" . ,(string-downcase output-format))
             (get-parameters chart))
       (get-parameters chart)))
 

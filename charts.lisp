@@ -117,7 +117,7 @@
   (:method append ((chart axis-chart))
     (loop for axis in (axes chart)
        for index from 0
-       collecting (string-downcase (subseq (symbol-name (location axis)) 0 1))
+       collecting (subseq (string-downcase (location axis)) 0 1)
                   into names
        collecting (when (range axis) (cons index (range axis)))
                   into ranges
