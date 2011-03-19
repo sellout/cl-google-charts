@@ -52,9 +52,6 @@
    (tick-mark-lengths :initform nil :initarg :tick-mark-lengths
                       :accessor tick-mark-lengths)))
 
-(defun print-range (range)
-  (format nil ",~d,~d~@[,~d~]" (start range) (end range) (axis-step range)))
-
 (defclass axis-chart (chart)
   ((axes :initform nil :initarg :axes :accessor axes :type list)))
 
