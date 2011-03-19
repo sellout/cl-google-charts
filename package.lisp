@@ -1,6 +1,8 @@
 (defpackage google-charts
   (:use #:cl)
-  (:export #:uri #:image-data #:image-map #:validate
+  (:export #:image-url #:image
+           #:image-map #:image-map-url
+           #:validate #:validation-url
            ;; charts
            #:bar-chart #:line-chart #:meter #:pie-chart #:radar-chart
            #:scatter-plot #:venn-diagram

@@ -6,7 +6,13 @@
             (get-parameters chart))
       (get-parameters chart)))
 
-(defun uri (chart &optional output-format)
+(defun url (chart paramaters)
+  (puri:merge-uris (format nil "?~a"
+                           (drakma::alist-to-url-encoded-string parameters
+                                                                :utf-8))
+                   +base-uri+))
+
+(defun image-url (chart &optional output-format)
   "Returns a GET-style URI that can be used in an IMG tag. If you want to get
    the image data, call IMAGE-DATA instead, as that uses a POST request and
    doesn’t have the length limitations of GET requests."
@@ -15,16 +21,7 @@
           "PNG and GIF are the only supported output formats. If you want an ~
            image map or to validate the chart, there are other functions for ~
            that.")
-  (puri:merge-uris (format nil "?~:{~a=~a~:^&~}"
-                           (mapcar (lambda (param)
-                                     (list (car param)
-                                           (puri::encode-escaped-encoding
-                                            (cdr param)
-                                            puri::*reserved-characters*
-                                            t)))
-                                   (parameters-with-output-format
-                                    chart output-format)))
-                   +base-uri+))
+  (url chart (parameters-with-output-format chart output-format)))
 
 (defun request (chart output-format)
   (multiple-value-bind (body status)
@@ -36,7 +33,7 @@
         body
         (error "Request failed: ~d" status))))
 
-(defun image-data (chart &optional output-format)
+(defun image (chart &optional output-format)
   (assert (member output-format '(:png :gif))
           (output-format)
           "PNG and GIF are the only supported output formats. If you want an ~
@@ -51,8 +48,21 @@
   ;; TODO: Offer to return either the JSON or an HTML map structure.
   (request chart "json"))
 
+(defun image-map-url (chart js-callback)
+  "If you want to process the profile data using client-side JavaScript, this
+   generates a URL that you can use as a `src` value to the HTML `script`
+   element. And the JavaScript function named by _js-callback_ will be called on
+   the resulting JSON data."
+  (url chart (cons `("callback" . ,js-callback)
+                   (parameters-with-output-format chart "json"))))
+
 (defun validate (chart)
   "Returns an HTML page listing any errors in the chart URL.
    http://code.google.com/apis/chart/docs/debugging.html"
   ;; TODO: Parse this and just grab the useful information.
   (request chart "validate"))
+
+(defun validation-url (chart)
+  "Returns a URL for the HTML page containing the validation information. This
+   is suitable for use in an A or IFRAME element."
+  (url chart (parameters-with-output-format chart "validate")))
