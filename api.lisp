@@ -6,7 +6,7 @@
             (get-parameters chart))
       (get-parameters chart)))
 
-(defun url (chart paramaters)
+(defun url (parameters)
   (puri:merge-uris (format nil "?~a"
                            (drakma::alist-to-url-encoded-string parameters
                                                                 :utf-8))
@@ -21,7 +21,7 @@
           "PNG and GIF are the only supported output formats. If you want an ~
            image map or to validate the chart, there are other functions for ~
            that.")
-  (url chart (parameters-with-output-format chart output-format)))
+  (url (parameters-with-output-format chart output-format)))
 
 (defun request (chart output-format)
   (multiple-value-bind (body status)
@@ -53,8 +53,8 @@
    generates a URL that you can use as a `src` value to the HTML `script`
    element. And the JavaScript function named by _js-callback_ will be called on
    the resulting JSON data."
-  (url chart (cons `("callback" . ,js-callback)
-                   (parameters-with-output-format chart "json"))))
+  (url (cons `("callback" . ,js-callback)
+             (parameters-with-output-format chart "json"))))
 
 (defun validate (chart)
   "Returns an HTML page listing any errors in the chart URL.
@@ -65,4 +65,4 @@
 (defun validation-url (chart)
   "Returns a URL for the HTML page containing the validation information. This
    is suitable for use in an A or IFRAME element."
-  (url chart (parameters-with-output-format chart "validate")))
+  (url (parameters-with-output-format chart "validate")))
