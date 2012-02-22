@@ -14,8 +14,8 @@
 
 (defun image-url (chart &optional output-format)
   "Returns a GET-style URI that can be used in an IMG tag. If you want to get
-   the image data, call IMAGE-DATA instead, as that uses a POST request and
-   doesn’t have the length limitations of GET requests."
+   the image data, call IMAGE instead, as that uses a POST request and doesn’t
+   have the length limitations of GET requests."
   (assert (member output-format '(nil :png :gif))
           (output-format)
           "PNG and GIF are the only supported output formats. If you want an ~
@@ -34,6 +34,7 @@
         (error "Request failed: ~d" status))))
 
 (defun image (chart &optional output-format)
+  "Returns an array of image data for a chart."
   (assert (member output-format '(:png :gif))
           (output-format)
           "PNG and GIF are the only supported output formats. If you want an ~
@@ -51,7 +52,7 @@
 (defun image-map-url (chart js-callback)
   "If you want to process the profile data using client-side JavaScript, this
    generates a URL that you can use as a `src` value to the HTML `script`
-   element. And the JavaScript function named by _js-callback_ will be called on
+   element. And the JavaScript function named by JS-CALLBACK will be called on
    the resulting JSON data."
   (url (cons `("callback" . ,js-callback)
              (parameters-with-output-format chart "json"))))

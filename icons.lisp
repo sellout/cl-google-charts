@@ -7,7 +7,8 @@
     (string value)))
 
 (defclass icon ()
-  ((text-color :initarg :text-color :accessor text-color)))
+  ((text-color :initarg :text-color :accessor text-color))
+  (:documentation "Icons that can be embedded within another chart."))
 
 (defclass bubble/pin-mixin (icon)
   ((shadowp :initform nil :initarg :shadowp :accessor shadowp)
@@ -17,7 +18,8 @@
   ((icon :initform nil :initarg :icon :accessor icon)
    (text :initarg :text :accessor text) ; string for text, list for texts
    (bigp :initform nil :initarg :bigp :accessor bigp)
-   (frame-style :initarg :frame-style :accessor frame-style)))
+   (frame-style :initarg :frame-style :accessor frame-style))
+  (:documentation "Choose small or large text bubbles, with or without icons."))
 
 (defmethod get-parameters append ((chart bubble))
   `(("chst" . ,(format nil
@@ -41,7 +43,10 @@
    (shape :initarg :shape :accessor shape)
    (largep :initform nil :initarg :largep :accessor largep)
    (text-color :initarg :text-color :accessor text-color)
-   (text-alignment :initarg :text-alignment :accessor text-alignment)))
+   (text-alignment :initarg :text-alignment :accessor text-alignment))
+  (:documentation "You can create a variety of text notes in novelty templates,
+                   such as a sticky note or a thought bubble. You can optionally
+                   include a title line in the note."))
 
 (defmethod get-parameters append ((chart fun-note))
   `(("chst" . ,(format nil "d_fnote~:[~;_title~]" (title chart)))
@@ -58,7 +63,9 @@
   ((content :initarg :content :accessor content)
    (style :initform nil :initarg :style :accessor style)
    (star-fill-color :initform nil :initarg :star-fill-color
-                    :accessor star-fill-color)))
+                    :accessor star-fill-color))
+  (:documentation "Pin types can be plain, starred, or slanted, and can have an
+                   icon, a single letter, or longer text strings."))
 
 (defmethod get-parameters append ((chart pin))
   `(("chst" . ,(format nil
