@@ -2,7 +2,7 @@ cl-google-charts is a Common Lisp wrapper for Google's chart API (at least the i
 
 Every aspect of the APIs should be available. The primary way to use them is to do something like:
 
-```
+```common-lisp
 (image-url (make-instance 'line-chart
                           :data (list (make-instance 'series :data '(10 30 50))
                                       (make-instance 'series :data '(25 35 10)))
